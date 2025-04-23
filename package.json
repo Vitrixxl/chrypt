@@ -1,0 +1,18 @@
+{
+  "name": "chrypt",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev:back": "bun run --watch ./backend/src/index.ts",
+    "dev:front": "cd frontend && pnpm run dev",
+    "dev": "concurrently \"bun run dev:back\" \"bun run dev:front\""
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "concurrently": "^9.1.2"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}
