@@ -1,0 +1,31 @@
+{
+  "name": "@shrymp/back",
+  "version": "1.0.50",
+  "scripts": {
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "bun run --watch src/index.ts"
+  },
+  "dependencies": {
+    "@bogeychan/elysia-logger": "^0.1.8",
+    "@elysiajs/cors": "^1.2.0",
+    "@elysiajs/eden": "^1.2.0",
+    "@elysiajs/swagger": "^1.2.2",
+    "@shrymp/types": "workspace:*",
+    "@types/bun": "^1.2.10",
+    "better-auth": "^1.2.7",
+    "drizzle-orm": "^0.42.0",
+    "drizzle-seed": "^0.3.1",
+    "drizzle-typebox": "^0.3.2",
+    "elysia": "^1.2.25",
+    "pg": "^8.15.1"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "1.9.4",
+    "bun-types": "latest",
+    "drizzle-kit": "^0.31.0",
+    "typescript": "~5.7.3"
+  },
+  "module": "src/index.js"
+}

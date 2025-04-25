@@ -1,0 +1,16 @@
+# En général
+node_modules
+.env
+*.env
+*.log
+.DS_Store
+
+# Monorepo spécifique
+apps/*/node_modules
+apps/*/.env
+apps/*/*.env
+
+# IDE stuff
+.vscode/
+.idea/
+
