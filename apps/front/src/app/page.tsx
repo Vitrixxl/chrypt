@@ -11,6 +11,7 @@ import React from "react";
 import { LucideLoader, LucideLoaderCircle } from "lucide-react";
 import { authClient } from "@/lib/auth";
 import { useNavigate } from "react-router-dom";
+import { Input } from "@/components/ui/input";
 
 const config = {
 	title: "Welcome to chrypt",
@@ -53,20 +54,22 @@ export default function AuthPage() {
 						<CardTitle>{config.title}</CardTitle>
 						<CardDescription>{config.description}</CardDescription>
 					</CardHeader>
-					<CardContent>
-						<Button className="w-full" onClick={signIn}>
-							{isLoading ? (
-								<>
-									<LucideLoader className="animate-spin" />
-									{config.loadingLabel}
-								</>
-							) : (
-								<>
-									<FcGoogle />
-									{config.loginLabel}
-								</>
-							)}
-						</Button>
+					<CardContent className="flex flex-col gap-2">
+						<Input />
+						<Input />
+						{/* <Button className="w-full" onClick={signIn}> */}
+						{/* 	{isLoading ? ( */}
+						{/* 		<> */}
+						{/* 			<LucideLoader className="animate-spin" /> */}
+						{/* 			{config.loadingLabel} */}
+						{/* 		</> */}
+						{/* 	) : ( */}
+						{/* 		<> */}
+						{/* 			<FcGoogle /> */}
+						{/* 			{config.loginLabel} */}
+						{/* 		</> */}
+						{/* 	)} */}
+						{/* </Button> */}
 					</CardContent>
 				</Card>
 			</div>

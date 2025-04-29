@@ -1,30 +1,15 @@
-import type { InferColumnsDataTypes, SQL } from "drizzle-orm";
-import type { PgColumn } from "drizzle-orm/pg-core";
-import { DrizzleError, sql } from "drizzle-orm";
+import type { PgColumn } from 'drizzle-orm/pg-core';
+import { InferColumnsDataTypes, sql } from 'drizzle-orm';
 
-export function jsonAgg<T extends Record<string, PgColumn>>(select: T) {
-	const chunks: SQL[] = [];
-	const entries = Object.entries(select);
+export function jsonAgg<T extends Record<string, PgColumn>>(fields: T) {
+  const entries = Object.entries(fields);
 
-	if (!entries.length) {
-		throw new DrizzleError({ message: "Cannot aggregate an empty object" });
-	}
+  const sqlParts = entries.flatMap(([key, value]) => [
+    sql.raw(`'${key}'`),
+    value,
+  ]);
 
-	entries.forEach(([key, column], index) => {
-		if (index > 0) chunks.push(sql`,`);
-		chunks.push(sql.raw(`'${key}',`), sql`${column}`);
-	});
-
-	const filterChunks = entries
-		.filter(([_, col]) => !col.notNull)
-		.map(([_, col]) => col);
-	const filterSql = filterChunks.length
-		? sql`FILTER (WHERE ${sql.join(filterChunks)} IS NOT NULL)`
-		: "";
-
-	return sql<InferColumnsDataTypes<T>[]>`
-      COALESCE(json_agg(json_build_object(${sql.join(
-				chunks,
-			)})) ${filterSql}, '[]')
-    `;
+  return sql<
+    InferColumnsDataTypes<T>[]
+  >`json_agg(json_build_object(${sql.join(sqlParts, sql.raw(', '))}))`;
 }

@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@elysiajs/eden": "^1.2.0",
     "@radix-ui/react-avatar": "^1.1.7",
     "@radix-ui/react-dialog": "^1.1.11",
     "@radix-ui/react-select": "^2.2.2",
@@ -17,17 +18,23 @@
     "@radix-ui/react-slot": "^1.2.0",
     "@radix-ui/react-tooltip": "^1.2.4",
     "@shrymp/types": "workspace:*",
+    "@shrymp/utils": "workspace:*",
     "@tailwindcss/vite": "^4.1.4",
+    "@tanstack/react-query": "^5.74.4",
     "better-auth": "^1.2.7",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "jotai": "^2.12.3",
     "lucide-react": "^0.503.0",
+    "motion": "^12.9.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-hook-form": "^7.56.1",
     "react-icons": "^5.5.0",
     "react-router-dom": "^7.5.2",
     "tailwind-merge": "^3.2.0",
-    "tailwindcss": "^4.1.4"
+    "tailwindcss": "^4.1.4",
+    "zod": "^3.24.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.22.0",
