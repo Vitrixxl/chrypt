@@ -8,12 +8,6 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export const arrayBufferToBase64 = (arrayBuffer: ArrayBuffer): string => {
-  const uint8Array = new Uint8Array(arrayBuffer);
-  const binaryString = String.fromCharCode(...uint8Array);
-  return btoa(binaryString);
-};
-
 type HTTPMethods = 'POST' | 'GET' | 'DELETE' | 'PUT' | 'PATCH';
 
 export const generateSafeFetch = () => {
@@ -77,4 +71,13 @@ export const base64ToArrayBuffer = (base64: string) => {
     bytes[i] = binaryString.charCodeAt(i);
   }
   return bytes.buffer;
+};
+export const base64ToUint8Array = (base64: string) => {
+  return new Uint8Array(base64ToArrayBuffer(base64));
+};
+
+export const arrayBufferToBase64 = (arrayBuffer: ArrayBufferLike): string => {
+  const uint8Array = new Uint8Array(arrayBuffer);
+  const binaryString = String.fromCharCode(...uint8Array);
+  return btoa(binaryString);
 };

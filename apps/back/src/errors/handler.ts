@@ -1,19 +1,16 @@
 import Elysia from 'elysia';
-import { message } from '../libs/db/schema';
 
 export const errorsHandler = () => {
   return new Elysia()
-    .onError(({ error, code, path }) => {
+    .onError(({ error, code }) => {
+      console.error(error);
       switch (code) {
         case 'VALIDATION': {
           return {
             data: null,
             error: {
               message: 'Invalid request',
-              details: {
-                error,
-                path,
-              },
+              details: error,
             },
           };
         }
@@ -24,10 +21,7 @@ export const errorsHandler = () => {
               message: error instanceof Error
                 ? error.message
                 : 'Internal Server Error',
-              details: {
-                error,
-                path,
-              },
+              details: error,
             },
           };
         }

@@ -8,6 +8,41 @@
       "when": 1745761387350,
       "tag": "0000_real_rafael_vega",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1745971590613,
+      "tag": "0001_unknown_alex_power",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1746055492345,
+      "tag": "0002_free_ink",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1746124744645,
+      "tag": "0003_mean_brother_voodoo",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1746274864537,
+      "tag": "0004_keen_vision",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1746279732293,
+      "tag": "0005_salty_molten_man",
+      "breakpoints": true
     }
   ]
 }

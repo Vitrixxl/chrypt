@@ -1,0 +1,1 @@
+ALTER TABLE "shrymp_user" ADD COLUMN "publib_key_version" integer;

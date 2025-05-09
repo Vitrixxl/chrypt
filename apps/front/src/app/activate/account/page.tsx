@@ -13,8 +13,8 @@ import { useAutoFocus } from "@/hooks/use-autofocus";
 import { LucideCheck } from "lucide-react";
 import React from "react";
 import { safeFetch } from "@/lib/utils";
-import { generateRSAKeys } from "@/lib/encryption";
 import { authClient } from "@/lib/auth";
+import { generateRSAKeys } from "@/services/encryption-service";
 
 export default function ActivateAccountPage() {
 	const [assphrase, setPassphrase] = React.useState("");

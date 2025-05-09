@@ -1,0 +1,1 @@
+ALTER TABLE "shrymp_user" RENAME COLUMN "publib_key_version" TO "key_version";

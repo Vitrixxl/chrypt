@@ -1,10 +1,15 @@
 import Elysia, { t } from 'elysia';
+import { v4 as uuid } from 'uuid';
 import { authMiddleware } from '../middlewares/auth';
 import { database } from '../middlewares/db';
-import { and, eq, getTableColumns, sql } from 'drizzle-orm';
+import { and, desc, eq, getTableColumns, inArray } from 'drizzle-orm';
 import { jsonAgg } from '../libs/db/utils';
 import { _createMessage } from '../libs/validation/chat';
 import { apiError } from '../errors/utils';
+import type { ActivatedUser, User } from '@shrymp/types';
+import { ServerSocket, serverSocketMap } from '../libs/socket';
+
+const chatSocketMap: Map<string, ServerSocket> = new Map();
 
 export function chatRouter() {
   return new Elysia({ prefix: '/chats' })
@@ -12,92 +17,15 @@ export function chatRouter() {
     .use(database)
     .get(
       '/',
-      async ({ db, schema }) => {
-        const data = await db
-          .select({
-            ...getTableColumns(schema.chat),
-            users: jsonAgg(getTableColumns(schema.user)),
-            messages: sql<
-              { id: string; content: string; createAt: string }
-            >`json_agg(json_build_object(
-      'id', ${schema.message},
-      'content', ${schema.message.encryptedContent},
-      'createdAt', ${schema.message.keys}
-    ))`,
-          })
-          .from(schema.chat)
-          .leftJoin(
+      async ({ db, schema, user }) => {
+        const chats = await db.select().from(schema.chat)
+          .innerJoin(
             schema.userChat,
             eq(schema.chat.id, schema.userChat.chatId),
-          ).leftJoin(schema.user, eq(schema.userChat.userId, schema.user.id))
-          .leftJoin(
-            schema.message,
-            eq(schema.chat.id, schema.message.chatId),
-          ).groupBy(schema.chat.id);
+          ).innerJoin(schema.user, eq(schema.userChat.userId, schema.user.id))
+          .where(eq(schema.user.id, user.id));
 
-        return { data, error: null };
-      },
-      {
-        auth: true,
-      },
-    )
-    .post(
-      '/',
-      async ({ db, schema, user, body: { userIds }, path }) => {
-        console.log(userIds);
-        if (!userIds.includes(user.id)) {
-          return;
-        }
-        const [returnedId] = await db
-          .insert(schema.chat)
-          .values({})
-          .returning();
-        if (!returnedId) {
-          return apiError('Error while getting the id back', null, path);
-        }
-        await db
-          .insert(schema.userChat)
-          .values(userIds.map((id) => ({ userId: id, chatId: returnedId.id })));
-        return { data: null, error: null };
-      },
-      {
-        auth: true,
-        body: t.Object({
-          userIds: t.Array(t.String()),
-        }),
-      },
-    )
-    .post(
-      '/:id/message',
-      async ({ db, schema, body, params: { id } }) => {
-        await db.insert(schema.message).values({ ...body, chatId: id });
-      },
-      { auth: true, body: t.Omit(_createMessage, ['chatId']) },
-    )
-    .get(
-      '/:id/message',
-      async ({ db, schema, query, params: { id } }) => {
-        const l = query['limit'] == '' ? Number(query['limit']) : 30;
-        const o = query['offset'] == '' ? Number(query['offset']) : 0;
-        const messages = await db
-          .select()
-          .from(schema.message)
-          .where(eq(schema.message.chatId, id))
-          .limit(l + 1)
-          .offset(o);
-        return {
-          messages: messages.length > l
-            ? messages.slice(0, messages.length - 1)
-            : messages,
-          nextUrl: messages.length > l,
-        };
-      },
-      { auth: true },
-    )
-    .get(
-      '/:id',
-      async ({ db, schema, params: { id } }) => {
-        const [chat] = await db
+        const data = await db
           .select({
             ...getTableColumns(schema.chat),
             users: jsonAgg(getTableColumns(schema.user)),
@@ -106,20 +34,140 @@ export function chatRouter() {
           .innerJoin(
             schema.userChat,
             eq(schema.chat.id, schema.userChat.chatId),
-          )
-          .innerJoin(schema.user, eq(schema.userChat.userId, schema.user.id))
-          .where(and(eq(schema.chat.id, id)));
-        return chat;
-      },
-      { auth: true },
-    )
-    .get(
-      '/caca/:cacaId',
-      ({ params, db, schema, user }) => {
-        params.cacaId;
+          ).innerJoin(schema.user, eq(schema.userChat.userId, schema.user.id))
+          .where(inArray(schema.chat.id, chats.map((c) => c.chat.id))).groupBy(
+            schema.chat.id,
+          ).orderBy(desc(schema.chat.createdAt));
+
+        return { data, error: null };
       },
       {
         auth: true,
+      },
+    )
+    /**
+     * This end point create chat with the users specified by the user including himself
+     */
+    .post(
+      '/',
+      async ({ db, schema, user, body: { userIds, chatId } }) => {
+        if (userIds.length === 1 && userIds.includes(user.id)) {
+          return apiError("You can't start a chat with yourself", null);
+        }
+        await db
+          .insert(schema.chat)
+          .values({ id: chatId });
+
+        await db
+          .insert(schema.userChat)
+          .values([
+            ...userIds.filter((u) => u !== user.id).map((id) => ({
+              userId: id,
+              chatId: chatId,
+            })),
+            { userId: user.id, chatId: chatId },
+          ]);
+
+        const users: User[] = await db.select().from(schema.user).where(
+          inArray(schema.user.id, userIds),
+        );
+        users.push(user);
+
+        const notifyUsers = async (users: User[], chatId: string) => {
+          for (const u of users) {
+            const userSocket = serverSocketMap.get(u.id);
+            console.log(userSocket);
+            if (!userSocket) continue;
+            userSocket.send('new-chat', {
+              users: users.filter((u) =>
+                u.publicKey && u.keyVersion
+              ) as ActivatedUser[],
+              chatId,
+            });
+          }
+        };
+
+        notifyUsers(users, chatId);
+
+        return { data: null, error: null };
+      },
+      {
+        auth: true,
+        body: t.Object({
+          userIds: t.Array(t.String({ error: 'You need to add some people' })),
+          chatId: t.String({ format: 'uuid' }),
+        }),
+      },
+    )
+    .post(
+      '/:id/message',
+      async ({ db, schema, body, params: { id }, user }) => {
+        const [currentChat] = await db.select({
+          ...getTableColumns(schema.chat),
+          users: jsonAgg(getTableColumns(schema.user)),
+        }).from(schema.chat).innerJoin(
+          schema.userChat,
+          eq(schema.chat.id, schema.userChat.chatId),
+        ).innerJoin(schema.user, eq(schema.userChat.userId, schema.user.id))
+          .groupBy(schema.chat.id)
+          .where(
+            eq(schema.chat.id, id),
+          );
+        if (!currentChat || !currentChat.users.find((u) => u.id == user.id)) {
+          return apiError('You do not have access to this chat', null);
+        }
+
+        const { users } = currentChat;
+        const messageId = uuid();
+        const message = {
+          ...body,
+          id: messageId,
+          chatId: id,
+          userId: user.id,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
+
+        await db.insert(schema.message).values(message);
+
+        // Notify the conntected users
+        for (const u of users) {
+          const userSocket = serverSocketMap.get(u.id);
+          if (!userSocket || u.id == user.id) continue;
+          userSocket.send('new-message', {
+            message,
+            chatId: id,
+          });
+        }
+      },
+      { auth: true, body: t.Omit(_createMessage, ['chatId', 'userId']) },
+    )
+    .get(
+      '/:id/messages',
+      async ({ db, schema, params: { id }, query: { cursor } }) => {
+        const data = await db
+          .select(getTableColumns(schema.message))
+          .from(schema.message)
+          .where(and(eq(schema.message.chatId, id))).orderBy(
+            desc(schema.message.createdAt),
+          )
+          .limit(31)
+          .offset(
+            cursor * 30,
+          );
+        return {
+          data: {
+            messages: data.length > 30 ? data.slice(0, data.length) : data,
+            nextCursor: data.length > 30 ? cursor + 1 : null,
+          },
+          error: null,
+        };
+      },
+      {
+        auth: true,
+        query: t.Object({
+          cursor: t.Number({ default: 0 }),
+        }),
       },
     );
 }

@@ -4,8 +4,11 @@ import { t } from 'elysia';
 
 export const _createChat = createSelectSchema(chat);
 export const _createMessage = createInsertSchema(message, {
-  keys: t.Object({
-    encryptedAESKey: t.String(),
-    privateKeyVersion: t.Number(),
-  }),
+  keys: t.Record(
+    t.String(),
+    t.Object({
+      encryptedAESKey: t.String(),
+      privateKeyVersion: t.Number(),
+    }),
+  ),
 });

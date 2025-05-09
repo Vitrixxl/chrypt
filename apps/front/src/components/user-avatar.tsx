@@ -5,9 +5,8 @@ type UserAvatarProps = {
 };
 
 export function UserAvatar({ user }: UserAvatarProps) {
-	console.log(user);
 	return (
-		<Avatar className="rounded-full">
+		<Avatar className="rounded-full border">
 			{user.image && <AvatarImage src={user.image} />}
 			<AvatarFallback className="rounded-full select-none">
 				{user.name.slice(0, 2).toUpperCase()}

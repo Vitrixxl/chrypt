@@ -1,14 +1,11 @@
 import { privateKey } from '../../../apps/back/src/libs/db/schema';
+import { User } from './auth';
 
 export type PrivateKey = {
   /**
-   * Base64 Encrypted key in the db
+   * Base64 key generated on the front-end
    */
-  key: string;
-  /**
-   * Decrypted key generated on the front-end
-   */
-  decryptedKey: ArrayBuffer | null;
+  encryptedKey: string;
 
   /**
    * Base64 Iv stored in the db
@@ -26,7 +23,7 @@ export type PrivateKey = {
 
 export type PublicKey = {
   key: string;
-  privateKeyVersion: number;
+  version: number;
 };
 
 export type AESKey = {
@@ -35,3 +32,24 @@ export type AESKey = {
 };
 
 export type UserPrivateKey = typeof privateKey.$inferSelect;
+export type UserDecryptedPrivateKey = {
+  /**
+   * Database id
+   */
+  id: string;
+
+  userId: User['id'];
+  /**
+   * Base64 version of the private Key
+   */
+  privateKey: string;
+  /**
+   * Version of the key used to track which key ecrypted which message
+   */
+  version: number;
+};
+
+/**
+ * The key will be the version
+ */
+export type UserDecryptedPrivateKeyRuntime = Record<number, Uint8Array>;

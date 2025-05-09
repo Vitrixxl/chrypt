@@ -7,10 +7,12 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { useInit } from "@/hooks/use-init";
 import { authClient } from "@/lib/auth";
+import { initKeys } from "@/services/key-service";
+import { tryCatch } from "@shrymp/utils";
 import { LucideCheck } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 
 const config = {
 	title: "Register buddy",
@@ -24,21 +26,26 @@ type RegisterData = {
 };
 
 export default function RegisterPage() {
-	const init = useInit();
+	const navigate = useNavigate();
 	const {
 		register,
 		handleSubmit,
 		setError,
-		formState: { errors },
+		formState: { isLoading, errors },
 	} = useForm<RegisterData>();
 
 	const onSubmit = async (data: RegisterData) => {
-		const { data: authData, error } = await authClient.signUp.email(data);
+		const { error } = await authClient.signUp.email(data);
 		if (error) {
 			setError("root", { message: error.message });
 			return;
 		}
-		init({ ...authData.user, publicKey: null, image: null }, data.password);
+		const { error: initError } = await tryCatch(initKeys(data.password));
+		if (initError) {
+			setError("root", { message: initError.message });
+			return;
+		}
+		navigate("/chats");
 	};
 
 	return (
@@ -83,6 +90,9 @@ export default function RegisterPage() {
 							</Button>
 						</div>
 					</form>
+					{errors.root && (
+						<p className="text-xs text-destructive">{errors.root.message}</p>
+					)}
 				</CardContent>
 			</Card>
 		</div>

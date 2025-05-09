@@ -3,50 +3,32 @@ import {
 	SidebarProvider,
 	SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { authClient } from "@/lib/auth";
-import { LucideLoaderCircle } from "lucide-react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { AppSidebar } from "./_components/app-sidebar";
 import { AppInput } from "./_components/app-input";
 import { useAtomValue } from "jotai";
-import { $isSessionActive, $privateKeys } from "@/stores/keys-store";
+import { $user } from "@/stores/user";
 
 export default function ChatLayout() {
-	const { data, isPending } = authClient.useSession();
-	const isSessionActive = useAtomValue($isSessionActive);
-	const privateKeys = useAtomValue($privateKeys);
-	console.log(privateKeys);
+	const user = useAtomValue($user);
 
 	const navigate = useNavigate();
 
-	if (isPending) {
-		return (
-			<div className="h-svh w-full flex items-center justify-center">
-				<LucideLoaderCircle className="animate-spin size-20" />
-			</div>
-		);
-	}
-
-	if (!data) {
-		navigate("/");
-		return;
-	}
-	if (!data.user.publicKey) {
-		navigate("/activate/account");
-		return;
-	}
-	if (!isSessionActive) {
-		navigate("/activate/session");
-		return;
+	if (!user) {
+		// navigate("/auth/login");
+		console.log("no user");
+		return null;
 	}
 
 	return (
 		<SidebarProvider>
-			<AppSidebar user={data.user} />
+			<AppSidebar user={user} />
 			<SidebarInset>
-				<main className="p-4 flex flex-col h-full relative">
+				<main className="p-4 grid grid-rows-[minmax(0,1fr)_auto] h-full relative">
 					<SidebarTrigger className="absolute top-4 left-4" />
-					<Outlet />
+					<div className="h-full">
+						<Outlet />
+					</div>
 					<AppInput />
 				</main>
 			</SidebarInset>

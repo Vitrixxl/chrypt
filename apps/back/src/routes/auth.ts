@@ -7,7 +7,7 @@ const betterAuthView = (context: Context) => {
   if (BETTER_AUTH_ACCEPT_METHODS.includes(context.request.method)) {
     return auth.handler(context.request);
   } else {
-    return apiError('Unsupported method', null, context.path);
+    return apiError('Unsupported method', null);
   }
 };
 

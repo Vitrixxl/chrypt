@@ -1,0 +1,1 @@
+ALTER TABLE "shrymp_private_key" RENAME COLUMN "key" TO "encrypted_key";

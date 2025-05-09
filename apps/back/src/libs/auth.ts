@@ -17,8 +17,15 @@ export const auth = betterAuth({
       publicKey: {
         type: 'string',
         required: false,
-        defaultValue: null,
         input: false,
+        returned: true, // inclus dans l’API
+        defaultValue: null,
+      },
+      keyVersion: {
+        type: 'number',
+        required: false,
+        input: false,
+        returned: true,
       },
     },
   },

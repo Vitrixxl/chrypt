@@ -1,0 +1,2 @@
+ALTER TABLE "shrymp_message" ADD COLUMN "user_id" text NOT NULL;--> statement-breakpoint
+ALTER TABLE "shrymp_message" ADD CONSTRAINT "shrymp_message_user_id_shrymp_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."shrymp_user"("id") ON DELETE no action ON UPDATE no action;

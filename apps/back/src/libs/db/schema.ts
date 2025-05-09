@@ -22,6 +22,7 @@ export const user = table('user', {
   emailVerified: boolean('email_verified').notNull(),
   image: text('image'),
   publicKey: text('public_key'),
+  keyVersion: integer('key_version'),
   ...timestamps,
 });
 
@@ -72,7 +73,7 @@ export const verification = table('verification', {
 export const privateKey = table('private_key', {
   id: uuid().primaryKey().defaultRandom(),
   userId: text('user_id').references(() => user.id),
-  key: text().notNull(),
+  encryptedKey: text('encrypted_key').notNull(),
   iv: text().notNull(),
   salt: text().notNull(),
   version: integer().notNull(),
@@ -102,5 +103,6 @@ export const message = table('message', {
   encryptedContent: text('encrypted_content').notNull(),
   iv: text('iv').notNull(),
   keys: jsonb('keys').$type<Record<string, AESKey>>().default({}).notNull(),
+  userId: text('user_id').references(() => user.id).notNull(),
   ...timestamps,
 });

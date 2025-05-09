@@ -1,4 +1,3 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
 	Sidebar,
 	SidebarContent,
@@ -12,10 +11,11 @@ import {
 } from "@/components/ui/sidebar";
 import { UserAvatar } from "@/components/user-avatar";
 import { useChats } from "@/hooks/use-chats";
-import { User } from "better-auth/types";
 import { LucideShrimp } from "lucide-react";
 import { Link } from "react-router-dom";
 import { StartChatDialog } from "./start-chat-dialog";
+import { User } from "@shrymp/types";
+import { ChatButton } from "./chat-button";
 
 type AppSidebarProps = {
 	user: User;
@@ -56,16 +56,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
 								.map(
 									(c) =>
 										c.users[0] && (
-											<SidebarMenu key={c.id}>
-												<SidebarMenuItem>
-													<SidebarMenuButton size="lg" asChild>
-														<Link to={`/chats/${c.id}`}>
-															<UserAvatar user={c.users[0]} />
-															{c.users[0] && c.users[0].name}
-														</Link>
-													</SidebarMenuButton>
-												</SidebarMenuItem>
-											</SidebarMenu>
+											<ChatButton chat={c} key={c.id} user={user} />
 										),
 								)}
 					</div>
@@ -83,15 +74,10 @@ export function AppSidebar({ user }: AppSidebarProps) {
 					<SidebarMenuItem>
 						<SidebarMenuButton
 							size="lg"
-							className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+							className="border data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
 						>
 							<div className="flex gap-2 items-center">
-								<Avatar className="h-8 w-8 rounded-lg">
-									{user.image && <AvatarImage src={user.image} />}
-									<AvatarFallback>
-										{user.name.toUpperCase().slice(0, 2)}
-									</AvatarFallback>
-								</Avatar>
+								<UserAvatar user={user} />
 								<div className="grid flex-1 text-left text-sm leading-tight">
 									<span className="truncate font-semibold">{user.name}</span>
 									<span className="truncate text-xs text-muted-foreground">

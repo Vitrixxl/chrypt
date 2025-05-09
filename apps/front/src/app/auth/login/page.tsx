@@ -7,33 +7,41 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { useInit } from "@/hooks/use-init";
 import { authClient } from "@/lib/auth";
-import { $user } from "@/stores/user";
-import { useSetAtom } from "jotai";
-import { LucideCheck } from "lucide-react";
+import { afterAuthHandler } from "@/services/init-service";
+import { initKeys } from "@/services/key-service";
+import { tryCatch } from "@shrymp/utils";
+import { LucideCheck, LucideLoaderCircle } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 
 const config = {
 	title: "Login buddy",
 	description: "A simple webapp to securly chat with anyone",
 };
 export default function LoginPage() {
-	const init = useInit();
+	const navigate = useNavigate();
 	const {
 		register,
 		handleSubmit,
-		formState: { errors },
+		formState: { isLoading, errors },
 		setError,
 	} = useForm<{ email: string; password: string }>();
 	const onSubmit = async (data: { email: string; password: string }) => {
-		const { data: signInData, error } = await authClient.signIn.email(data);
+		const { error } = await authClient.signIn.email(data);
 		if (error) {
 			console.error(error);
 			setError("root", { message: error.message });
 			return;
 		}
-		init({ ...signInData.user, publicKey: null, image: null }, data.password);
+		const { error: initError } = await tryCatch(
+			afterAuthHandler(data.password),
+		);
+		if (initError) {
+			setError("root", { message: initError.message });
+			return;
+		}
+		navigate("/chats");
 	};
 	return (
 		<div className="w-full h-svh grid place-content-center">
@@ -49,7 +57,6 @@ export default function LoginPage() {
 					>
 						<Input
 							placeholder="Email"
-							type="email"
 							{...register("email", {
 								required: {
 									value: true,
@@ -63,11 +70,19 @@ export default function LoginPage() {
 								type="password"
 								{...register("password")}
 							/>
+
 							<Button size="icon">
-								<LucideCheck />
+								{isLoading ? (
+									<LucideLoaderCircle className="animate-spin" />
+								) : (
+									<LucideCheck />
+								)}
 							</Button>
 						</div>
 					</form>
+					{errors.root && (
+						<p className="text-destructive text-sm">{errors.root.message}</p>
+					)}
 				</CardContent>
 			</Card>
 		</div>
