@@ -7,9 +7,7 @@ import { jsonAgg } from '../libs/db/utils';
 import { _createMessage } from '../libs/validation/chat';
 import { apiError } from '../errors/utils';
 import type { ActivatedUser, User } from '@shrymp/types';
-import { ServerSocket, serverSocketMap } from '../libs/socket';
-
-const chatSocketMap: Map<string, ServerSocket> = new Map();
+import { serverSocketMap } from '../libs/socket';
 
 export function chatRouter() {
   return new Elysia({ prefix: '/chats' })
@@ -144,7 +142,7 @@ export function chatRouter() {
     )
     .get(
       '/:id/messages',
-      async ({ db, schema, params: { id }, query: { cursor } }) => {
+      async ({ db, schema, params: { id }, query: { cursor, offset } }) => {
         const data = await db
           .select(getTableColumns(schema.message))
           .from(schema.message)
@@ -153,11 +151,11 @@ export function chatRouter() {
           )
           .limit(31)
           .offset(
-            cursor * 30,
+            cursor * 30 + offset,
           );
         return {
           data: {
-            messages: data.length > 30 ? data.slice(0, data.length) : data,
+            messages: data.length > 30 ? data.slice(0, data.length - 1) : data,
             nextCursor: data.length > 30 ? cursor + 1 : null,
           },
           error: null,
@@ -167,6 +165,7 @@ export function chatRouter() {
         auth: true,
         query: t.Object({
           cursor: t.Number({ default: 0 }),
+          offset: t.Number({ default: 0 }),
         }),
       },
     );

@@ -17,8 +17,7 @@ import { InfiniteData } from '@tanstack/react-query';
 import { getDefaultStore, useAtomValue, useSetAtom } from 'jotai';
 import React from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { privateKey } from '../../../back/src/libs/db/schema';
-import { $newMessageTrigger } from '@/stores/chat';
+import { $currentChatNewMessages, $newMessageTrigger } from '@/stores/chat';
 
 export default function AppLayout() {
   const navigate = useNavigate();
@@ -26,6 +25,8 @@ export default function AppLayout() {
 
   const [isLoading, setIsLoading] = React.useState(true);
   const setNewMessageTrigger = useSetAtom($newMessageTrigger);
+  const setCurrentChatNewMessages = useSetAtom($currentChatNewMessages);
+  const user = useAtomValue($user);
 
   const setup = async () => {
     const { data: authData, error: authError } = await authClient.getSession();
@@ -85,8 +86,8 @@ export default function AppLayout() {
         (old) => old ? [chat, ...old] : [chat],
       );
     });
+
     ws.on('new-message', async (data) => {
-      console.log(data);
       const store = getDefaultStore();
       const user = store.get($user);
       const privateKeys = store.get($privateKeys);
@@ -97,6 +98,7 @@ export default function AppLayout() {
         user,
         privateKeys,
       );
+
       queryClient.setQueryData<
         InfiniteData<{
           decryptedMessages: DecryptedMessage[];
@@ -129,12 +131,18 @@ export default function AppLayout() {
         };
       });
       setNewMessageTrigger(true);
+      setCurrentChatNewMessages((prev) => ({
+        ...prev,
+        [data.chatId]: prev[data.chatId] ? prev[data.chatId] + 1 : 1,
+      }));
     });
   };
+
   React.useEffect(() => {
+    if (user) return;
     setup();
     setupSocket();
-  }, []);
+  }, [user]);
 
   if (isLoading) {
     return <MainLoader />;

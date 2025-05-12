@@ -1,10 +1,5 @@
 import React from 'react';
 
-type UseAutoFocusParams = {
-  ref: React.RefObject<HTMLElement | null>;
-  listen: boolean;
-};
-
 export function useAutoFocus(ref: React.RefObject<HTMLElement | null>) {
   const isInputOrTextareaFocused = () => {
     const active = document.activeElement;

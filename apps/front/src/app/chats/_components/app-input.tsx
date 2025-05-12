@@ -14,7 +14,7 @@ export function AppInput() {
   useAutoFocus(inputRef);
 
   const handleSubmit = async () => {
-    if (!chatId) return;
+    if (!chatId || inputValue == '') return;
     await sendMutation.mutateAsync({ content: inputValue, chatId });
     setInputValue('');
   };

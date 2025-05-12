@@ -17,7 +17,7 @@ import {
   encryptMessage,
 } from './encryption-service';
 import { arrayBufferToBase64, base64ToUint8Array } from '@/lib/utils';
-import { privateKey } from '../../../back/src/libs/db/schema';
+import { $currentChatNewMessages } from '@/stores/chat';
 
 export async function createChat(
   { users, chatId }: { users: User[]; chatId: string },
@@ -76,6 +76,7 @@ export const getMessages = async (
 ) => {
   const store = getDefaultStore();
 
+  const currentChatNewMessages = store.get($currentChatNewMessages);
   const user = store.get($user);
   if (!user) throw new Error('Unauthorized');
 
@@ -85,7 +86,11 @@ export const getMessages = async (
   const { data, error } = await api.get<
     { messages: Message[]; nextCursor: number }
   >(
-    `chats/${chatId}/messages?cursor=${pageParam}`,
+    `chats/${chatId}/messages?cursor=${pageParam}&offset=${
+      currentChatNewMessages[chatId]
+        ? currentChatNewMessages[chatId].toString()
+        : '0'
+    }`,
   );
   if (error) throw new Error(error.message);
 

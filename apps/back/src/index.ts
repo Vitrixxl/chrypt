@@ -13,7 +13,11 @@ const app = new Elysia()
   .use(errorsHandler())
   .use(authRouter)
   .use(authMiddleware)
-  .use(cors({ origin: ['http://localhost:5173'] }))
+  .use(
+    cors({
+      origin: true,
+    }),
+  )
   .use(swagger())
   .use(chatRouter())
   .use(userRouter())
@@ -27,7 +31,7 @@ const app = new Elysia()
   .listen(3000);
 
 console.log(
-  `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`,
+  `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port} test`,
 );
 
 export type App = typeof app;

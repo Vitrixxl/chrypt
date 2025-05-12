@@ -7,13 +7,8 @@ import {
   UserDecryptedPrivateKeyRuntime,
   UserPrivateKey,
 } from '@shrymp/types';
-import {
-  decryptPrivateKey,
-  encryptPrivateKey,
-  generateRSAKeys,
-} from './encryption-service';
-import { arrayBufferToBase64, base64ToUint8Array } from '@/lib/utils';
-import { tryCatch } from '@shrymp/utils';
+import { encryptPrivateKey, generateRSAKeys } from './encryption-service';
+import { base64ToUint8Array } from '@/lib/utils';
 import { getDefaultStore } from 'jotai';
 import { $privateKeys } from '@/stores/keys-store';
 import { $user } from '@/stores/user';
@@ -51,7 +46,7 @@ export const saveLocalKeys = async (
 /**
  * Generate a pair of key for the user and return the keys with the encryptedVersion with the user password to send to the backend
  */
-export const generateNewKeys = async (user: User, password: string) => {
+export const generateNewKeys = async (password: string) => {
   const { publicKey, privateKey } = await generateRSAKeys();
   const encryptedPrivateKey = await encryptPrivateKey(
     new Uint8Array(privateKey),
@@ -62,28 +57,6 @@ export const generateNewKeys = async (user: User, password: string) => {
     privateKey,
     encryptedPrivateKey,
   };
-  // const { data, error } = await sendKeys(arrayBufferToBase64(publicKey), {
-  //   encryptedKey: arrayBufferToBase64(
-  //     encryptedPrivateKey.encryptedPrivateKey,
-  //   ),
-  //   iv: arrayBufferToBase64(encryptedPrivateKey.iv.buffer),
-  //   salt: arrayBufferToBase64(encryptedPrivateKey.salt.buffer),
-  // });
-  // if (error) throw new Error('Error while saving the keys on the server');
-  // user.publicKey = arrayBufferToBase64(publicKey);
-  // user.keyVersion = data.version;
-  // /**
-  //  * Then we save localy the key
-  //  */
-  // const { error: localSaveError } = await tryCatch(saveLocalKey(
-  //   user.id,
-  //   arrayBufferToBase64(encryptedPrivateKey.encryptedPrivateKey),
-  //   data.version,
-  // ));
-  // if (localSaveError) {
-  //   throw new Error('Error while save the keys locally');
-  // }
-  // return privateKey;
 };
 
 /**
@@ -109,11 +82,11 @@ export const initKeys = async (password: string) => {
   if (!user.publicKey || keys.length == 0) {
     //  We still delete every localKey related to the user just in case
     await deleteLocalKeys(user.id);
-    const privateKey = await generateNewKeys(user, password);
+    const privateKey = await generateNewKeys(password);
 
     // And then we store the decryptedPrivateKey into the in memory store (jotai)
     const store = getDefaultStore();
-    store.set($privateKeys, { 1: new Uint8Array(privateKey) });
+    store.set($privateKeys, { 1: new Uint8Array(privateKey.privateKey) });
     store.set($user, user);
     return;
   }
@@ -125,7 +98,7 @@ export const initKeys = async (password: string) => {
   for (const k of keys) {
     decryptedKeys[k.version] = base64ToUint8Array(k.privateKey);
   }
-  const prevKeys = await getPreviousKeys(password);
+  const prevKeys = await getPreviousKeys();
   const store = getDefaultStore();
   store.set($privateKeys, { ...decryptedKeys, ...prevKeys });
   store.set($user, user);

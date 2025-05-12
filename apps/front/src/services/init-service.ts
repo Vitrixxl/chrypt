@@ -27,7 +27,7 @@ export const initAccount = async (password: string, user: User) => {
     publicKey,
     privateKey,
     encryptedPrivateKey,
-  } = await generateNewKeys(user, password);
+  } = await generateNewKeys(password);
   const { data, error } = await sendKeys(arrayBufferToBase64(publicKey), {
     encryptedKey: arrayBufferToBase64(
       encryptedPrivateKey.encryptedPrivateKey,

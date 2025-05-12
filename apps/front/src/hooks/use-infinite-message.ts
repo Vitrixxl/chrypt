@@ -5,11 +5,11 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 export const useInfiniteMessage = (chatId: string) => {
   const query = useInfiniteQuery({
     queryKey: ['chat-message', chatId],
+    staleTime: Infinity,
     queryFn: async ({ pageParam }) => {
       const { data, error } = await tryCatch(
         getMessages({ chatId, pageParam }),
       );
-      console.log(error);
       if (error) throw error;
       return data;
     },

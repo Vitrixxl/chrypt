@@ -1,7 +1,6 @@
 import { type ClassValue, clsx } from 'clsx';
 import { tryCatch } from '@shrymp/utils';
 import { twMerge } from 'tailwind-merge';
-import { message } from '../../../back/src/libs/db/schema';
 import { ApiResponse } from '@shrymp/types';
 
 export function cn(...inputs: ClassValue[]) {

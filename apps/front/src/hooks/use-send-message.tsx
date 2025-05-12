@@ -8,14 +8,13 @@ import { $user } from '@/stores/user';
 import { AESKey, DecryptedMessage } from '@shrymp/types';
 import { InfiniteData, useMutation } from '@tanstack/react-query';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { $newMessageTrigger } from '@/stores/chat';
-import { flushCompileCache } from 'module';
-import { flushSync } from 'react-dom';
+import { $currentChatNewMessages, $newMessageTrigger } from '@/stores/chat';
 
 export const useSendMessage = () => {
   const user = useAtomValue($user);
   const currentChatUsers = useAtomValue($currentChatUsers);
   const setNewMessageTrigger = useSetAtom($newMessageTrigger);
+  const setCurrentChatNewMessages = useSetAtom($currentChatNewMessages);
   const mutation = useMutation({
     mutationKey: ['send-message'],
     mutationFn: async ({
@@ -87,6 +86,10 @@ export const useSendMessage = () => {
         };
       });
       setNewMessageTrigger(true);
+      setCurrentChatNewMessages((prev) => ({
+        ...prev,
+        [chatId]: prev[chatId] ? prev[chatId] + 1 : 1,
+      }));
     },
   });
 

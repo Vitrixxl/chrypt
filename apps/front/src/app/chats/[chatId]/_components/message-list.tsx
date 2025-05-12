@@ -34,8 +34,9 @@ export const MessageList = ({ chatId }: MessageListProps) => {
   }, [chatId]);
 
   React.useEffect(() => {
-    if (!isFetchingNextPage) {
+    if (data && data.pages.length == 1) {
       scrollToBottom();
+      return;
     }
   }, [data]);
 
@@ -45,17 +46,6 @@ export const MessageList = ({ chatId }: MessageListProps) => {
       setNewMessageTrigger(false);
     }
   }, [newMessageTrigger]);
-
-  React.useEffect(() => {
-    if (!containerRef.current) return;
-
-    const hasMessages = data?.pages?.some((page) =>
-      page.decryptedMessages.length == 0
-    );
-    if (hasMessages) {
-      scrollToBottom();
-    }
-  }, [data]);
 
   if (!user || isPending) {
     return (
@@ -69,7 +59,7 @@ export const MessageList = ({ chatId }: MessageListProps) => {
 
   return (
     <List
-      className='overflow-y-auto overflow-x-hidden w-full flex flex-col max-h-full h-fit mt-auto gap-4 mx-auto max-w-[900px] pb-4 overscroll-none'
+      className='overflow-y-auto overflow-x-hidden w-full flex flex-col max-h-full h-fit mt-auto gap-4  pb-4 overscroll-none'
       order='up'
       onMaxScroll={fetchNextPage}
       ref={containerRef}
@@ -79,14 +69,17 @@ export const MessageList = ({ chatId }: MessageListProps) => {
           <LucideLoaderCircle className='animate-spin' />
         </div>
       )}
-      {data.pages
-        .flatMap((page) => page.decryptedMessages)
-        .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
-        .map((message) =>
-          message.userId === user.id
-            ? <UserMessage user={user} message={message} key={message.id} />
-            : <Message message={message} key={message.id} />
-        )}
+
+      <div className='max-w-[900px] mx-auto flex flex-col gap-3 w-full'>
+        {data.pages
+          .flatMap((page) => page.decryptedMessages)
+          .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
+          .map((message) =>
+            message.userId === user.id
+              ? <UserMessage user={user} message={message} key={message.id} />
+              : <Message message={message} key={message.id} />
+          )}
+      </div>
     </List>
   );
 };

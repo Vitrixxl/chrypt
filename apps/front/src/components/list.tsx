@@ -7,59 +7,50 @@ export const List = ({
   onMaxScroll,
   order = 'down',
   ref,
-  restoreScroll,
 }: {
   children: React.ReactNode;
   className?: string;
   onMaxScroll: () => void;
   order: 'up' | 'down';
   ref: React.RefObject<HTMLDivElement | null>;
-  restoreScroll: boolean;
 }) => {
   const internalRef = React.useRef<HTMLDivElement | null>(null);
   React.useImperativeHandle(ref, () => internalRef.current!);
 
-  const lastScrollHeight = React.useRef<number | null>(0);
+  const lastScrollTop = React.useRef<number>(0);
+  const lastScrollHeight = React.useRef<number>(0);
 
-  const restoreScrollFn = (el: HTMLDivElement) => {
-    const prevScrollHeight = lastScrollHeight.current;
-    const currentScrollHeight = el.scrollHeight;
-    if (!prevScrollHeight) {
-      lastScrollHeight.current = currentScrollHeight;
-      return;
-    }
-
-    if (prevScrollHeight < currentScrollHeight) {
-      el.scrollTo({ top: currentScrollHeight - prevScrollHeight });
-    }
-  };
-
+  // Restore scroll position after DOM updates
   React.useLayoutEffect(() => {
-    if (!internalRef.current || !restoreScroll) return;
-    restoreScrollFn(internalRef.current);
-  }, [restoreScroll]);
+    const container = internalRef.current;
+    if (!container) return;
 
+    const newScrollHeight = container.scrollHeight;
+    const scrollDelta = newScrollHeight - lastScrollHeight.current;
+    container.scrollTop = lastScrollTop.current + scrollDelta;
+  }, [children]);
+
+  // Infinite scroll trigger
   React.useEffect(() => {
-    const list = ref.current;
-    if (!list) return;
+    const container = internalRef.current;
+    if (!container) return;
 
-    const checkMaxScroll = () => {
-      if (!internalRef.current) return;
-      const scrollHeight = internalRef.current.scrollHeight;
+    const handleScroll = () => {
+      const scrollTop = container.scrollTop;
+      const scrollHeight = container.scrollHeight;
+      const clientHeight = container.getBoundingClientRect().height;
+      lastScrollTop.current = scrollTop;
+      lastScrollHeight.current = scrollHeight;
 
-      const height = internalRef.current.getBoundingClientRect().height;
-      const scrollTop = internalRef.current.scrollTop;
-      if (order == 'down') {
-        height == scrollHeight && onMaxScroll();
-      }
-      if (order == 'up') {
-        lastScrollHeight.current = internalRef.current.scrollHeight;
-        scrollTop == 0 && onMaxScroll();
+      if (order === 'down' && scrollTop + clientHeight >= scrollHeight) {
+        onMaxScroll();
+      } else if (order === 'up' && scrollTop === 0) {
+        onMaxScroll();
       }
     };
 
-    list.addEventListener('scroll', checkMaxScroll);
-    return () => list.removeEventListener('scroll', checkMaxScroll);
+    container.addEventListener('scroll', handleScroll);
+    return () => container.removeEventListener('scroll', handleScroll);
   }, [onMaxScroll, order]);
 
   return (
