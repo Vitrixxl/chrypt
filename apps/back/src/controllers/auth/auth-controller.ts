@@ -11,5 +11,4 @@ const betterAuthView = (context: Context) => {
   }
 };
 
-export const authController = () =>
-  new Elysia().all('/api/auth/*', betterAuthView);
+export const authController = () => new Elysia().all('/auth/*', betterAuthView);

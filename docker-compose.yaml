@@ -24,7 +24,7 @@ services:
       context: .
       dockerfile: ./apps/front/Dockerfile
     working_dir: /repo/apps/front
-    command: ["pnpm", "run", "preview", "--host"]
+    command: ["pnpm", "run", "preview","--host"]
     ports:
       - "4173:4173" 
     env_file:

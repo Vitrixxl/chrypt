@@ -6,7 +6,7 @@ import { jsonAgg } from '../../libs/db/utils';
 import { db } from '../../libs/db';
 import { apiError } from '../../errors/utils';
 import { serverSocketMap } from '../../libs/socket';
-import { Static, t } from 'elysia';
+import { Static } from 'elysia';
 import { _createMessage } from '../../libs/validation/chat';
 
 export const getChat = async (user: User) => {

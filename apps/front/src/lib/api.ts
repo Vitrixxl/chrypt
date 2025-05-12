@@ -7,6 +7,10 @@ type ApiError = {
 export class Api {
   constructor(private basePath: string) {
   }
+  private toApiPath(path: string) {
+    if (path.startsWith('/')) return '/api' + path;
+    return '/api/' + path;
+  }
   private handleResponseError(res: Response): { data: null; error: ApiError } {
     if (res.status == 404) {
       return { data: null, error: { message: 'Not found', details: res } };
@@ -56,7 +60,7 @@ export class Api {
     const response = await tryCatch<
       Response
     >(
-      fetch(new URL(path, this.basePath), {
+      fetch(new URL(this.toApiPath(path), this.basePath), {
         ...opts,
         method: 'GET',
         credentials: 'include',
@@ -77,7 +81,7 @@ export class Api {
     },
   ): Promise<Result<T, ApiError>> {
     const response = await tryCatch<Response>(
-      fetch(new URL(path, this.basePath), {
+      fetch(new URL(this.toApiPath(path), this.basePath), {
         ...opts,
         method: 'POST',
         credentials: 'include',
@@ -98,7 +102,7 @@ export class Api {
     },
   ): Promise<Result<T, ApiError>> {
     const response = await tryCatch<Response>(
-      fetch(new URL(path, this.basePath), {
+      fetch(new URL(this.toApiPath(path), this.basePath), {
         ...opts,
         method: 'PUT',
         credentials: 'include',
@@ -119,7 +123,7 @@ export class Api {
     },
   ): Promise<Result<T, ApiError>> {
     const response = await tryCatch<Response>(
-      fetch(new URL(path, this.basePath), {
+      fetch(new URL(this.toApiPath(path), this.basePath), {
         ...opts,
         method: 'PATCH',
         credentials: 'include',
@@ -140,7 +144,7 @@ export class Api {
     },
   ): Promise<Result<T, ApiError>> {
     const response = await tryCatch<Response>(
-      fetch(new URL(path, this.basePath), {
+      fetch(new URL(this.toApiPath(path), this.basePath), {
         ...opts,
         method: 'DELETE',
         credentials: 'include',

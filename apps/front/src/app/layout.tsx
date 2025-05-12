@@ -71,7 +71,9 @@ export default function AppLayout() {
 
   const setupSocket = () => {
     const ws = new ClientSocket(
-      new WebSocket('ws://localhost:3000/connect-socket'),
+      new WebSocket(
+        new URL('/api/socket/connect', import.meta.env.VITE_BASE_API_URL_WS),
+      ),
     );
     ws.on('new-chat', (data) => {
       const chat = {
