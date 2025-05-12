@@ -9,6 +9,7 @@ node_modules
 apps/*/node_modules
 apps/*/.env
 apps/*/*.env
+apps/*/dist
 
 # IDE stuff
 .vscode/

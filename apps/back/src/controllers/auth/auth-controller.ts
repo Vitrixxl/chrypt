@@ -1,6 +1,6 @@
 import Elysia, { Context } from 'elysia';
-import { auth } from '../libs/auth';
-import { apiError } from '../errors/utils';
+import { auth } from '../../libs/auth';
+import { apiError } from '../../errors/utils';
 
 const betterAuthView = (context: Context) => {
   const BETTER_AUTH_ACCEPT_METHODS = ['POST', 'GET'];
@@ -11,4 +11,5 @@ const betterAuthView = (context: Context) => {
   }
 };
 
-export const authRouter = new Elysia().all('/api/auth/*', betterAuthView);
+export const authController = () =>
+  new Elysia().all('/api/auth/*', betterAuthView);

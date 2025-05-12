@@ -15,7 +15,6 @@ ENV PATH="/root/.bun/bin:$PATH"
 # Définir le répertoire de travail
 WORKDIR /repo
 
-# Copier tous les fichiers du monorepo (les fichiers nécessaires pour le backend)
 COPY . .
 
 # Installer les dépendances globales (root)
