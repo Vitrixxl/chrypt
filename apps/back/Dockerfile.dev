@@ -1,0 +1,22 @@
+FROM node:20-slim
+
+WORKDIR /backend
+
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable
+
+RUN apt-get update && apt-get install -y curl gnupg ca-certificates unzip \
+    && curl -fsSL https://bun.sh/install | bash \
+    && rm -rf /var/lib/apt/lists/*
+
+ENV PATH="/root/.bun/bin:$PATH"
+
+WORKDIR /repo
+
+COPY . .
+
+RUN pnpm install
+
+WORKDIR /repo/apps/back
+

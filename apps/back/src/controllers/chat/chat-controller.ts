@@ -13,11 +13,15 @@ export function chatController() {
     .use(authMacro)
     .get(
       '/',
-      async ({ user }) => {
-        return await getChat(user);
+      async ({ user, query: { cursor, offset } }) => {
+        return await getChat(user, cursor, offset);
       },
       {
         auth: true,
+        query: t.Object({
+          cursor: t.Number({ default: 0 }),
+          offset: t.Number({ default: 0 }),
+        }),
       },
     )
     .post(

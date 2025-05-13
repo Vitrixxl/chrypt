@@ -1,14 +1,18 @@
 import { getChats } from '@/services/chat-service';
-import { useQuery } from '@tanstack/react-query';
+import { $newChats } from '@/stores/chat';
+import { useInfiniteQuery } from '@tanstack/react-query';
+import { useAtomValue } from 'jotai';
 export const useChats = () => {
-  const { data, error, isLoading } = useQuery({
+  const newChats = useAtomValue($newChats);
+  const query = useInfiniteQuery({
     queryKey: ['chats'],
-    queryFn: getChats,
+    staleTime: Infinity,
+    queryFn: async ({ pageParam }) => {
+      return getChats(pageParam, newChats);
+    },
+    getNextPageParam: (lastPage) => lastPage.nextCursor,
+    initialPageParam: 0,
   });
 
-  return {
-    data,
-    error,
-    isLoading,
-  };
+  return query;
 };

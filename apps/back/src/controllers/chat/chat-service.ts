@@ -9,7 +9,8 @@ import { serverSocketMap } from '../../libs/socket';
 import { Static } from 'elysia';
 import { _createMessage } from '../../libs/validation/chat';
 
-export const getChat = async (user: User) => {
+export const getChat = async (user: User, cursor: number, offset: number) => {
+  const LIMIT = 30;
   const chats = await db.select().from(schema.chat).innerJoin(
     schema.userChat,
     eq(schema.chat.id, schema.userChat.chatId),
@@ -28,9 +29,17 @@ export const getChat = async (user: User) => {
     ).innerJoin(schema.user, eq(schema.userChat.userId, schema.user.id))
     .where(inArray(schema.chat.id, chats.map((c) => c.chat.id))).groupBy(
       schema.chat.id,
-    ).orderBy(desc(schema.chat.createdAt));
+    ).orderBy(desc(schema.chat.createdAt)).limit(LIMIT + 1).offset(
+      offset + LIMIT * cursor,
+    );
 
-  return { data, error: null };
+  return {
+    data: {
+      chats: data.slice(0, LIMIT - 1),
+      nextUrl: data.length > LIMIT ? cursor + 1 : null,
+    },
+    error: null,
+  };
 };
 
 export const createChat = async (

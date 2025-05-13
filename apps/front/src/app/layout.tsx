@@ -17,7 +17,7 @@ import { InfiniteData } from '@tanstack/react-query';
 import { getDefaultStore, useAtomValue, useSetAtom } from 'jotai';
 import React from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { $currentChatNewMessages, $newMessageTrigger } from '@/stores/chat';
+import { $newMessages, $newMessageTrigger } from '@/stores/chat';
 
 export default function AppLayout() {
   const navigate = useNavigate();
@@ -25,7 +25,7 @@ export default function AppLayout() {
 
   const [isLoading, setIsLoading] = React.useState(true);
   const setNewMessageTrigger = useSetAtom($newMessageTrigger);
-  const setCurrentChatNewMessages = useSetAtom($currentChatNewMessages);
+  const setCurrentChatNewMessages = useSetAtom($newMessages);
   const user = useAtomValue($user);
 
   const setup = async () => {

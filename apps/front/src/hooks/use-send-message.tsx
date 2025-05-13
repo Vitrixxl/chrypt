@@ -8,13 +8,13 @@ import { $user } from '@/stores/user';
 import { AESKey, DecryptedMessage } from '@shrymp/types';
 import { InfiniteData, useMutation } from '@tanstack/react-query';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { $currentChatNewMessages, $newMessageTrigger } from '@/stores/chat';
+import { $newMessages, $newMessageTrigger } from '@/stores/chat';
 
 export const useSendMessage = () => {
   const user = useAtomValue($user);
   const currentChatUsers = useAtomValue($currentChatUsers);
   const setNewMessageTrigger = useSetAtom($newMessageTrigger);
-  const setCurrentChatNewMessages = useSetAtom($currentChatNewMessages);
+  const setCurrentChatNewMessages = useSetAtom($newMessages);
   const mutation = useMutation({
     mutationKey: ['send-message'],
     mutationFn: async ({

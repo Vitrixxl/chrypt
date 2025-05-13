@@ -11,8 +11,8 @@ export const List = ({
   children: React.ReactNode;
   className?: string;
   onMaxScroll: () => void;
-  order: 'up' | 'down';
-  ref: React.RefObject<HTMLDivElement | null>;
+  order?: 'up' | 'down';
+  ref?: React.RefObject<HTMLDivElement | null>;
 }) => {
   const internalRef = React.useRef<HTMLDivElement | null>(null);
   React.useImperativeHandle(ref, () => internalRef.current!);

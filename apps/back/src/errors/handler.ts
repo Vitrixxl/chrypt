@@ -3,7 +3,6 @@ import Elysia from 'elysia';
 export const errorsHandler = () => {
   return new Elysia()
     .onError(({ error, code }) => {
-      console.error(error);
       switch (code) {
         case 'VALIDATION': {
           return {

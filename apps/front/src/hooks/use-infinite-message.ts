@@ -7,11 +7,7 @@ export const useInfiniteMessage = (chatId: string) => {
     queryKey: ['chat-message', chatId],
     staleTime: Infinity,
     queryFn: async ({ pageParam }) => {
-      const { data, error } = await tryCatch(
-        getMessages({ chatId, pageParam }),
-      );
-      if (error) throw error;
-      return data;
+      return getMessages({ chatId, pageParam });
     },
     getNextPageParam: (lastPage) => lastPage.nextCursor,
     initialPageParam: 0,

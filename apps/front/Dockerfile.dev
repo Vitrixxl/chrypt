@@ -1,0 +1,19 @@
+FROM node:20-slim
+
+# Installer corepack pour pnpm
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable
+
+# Créer le répertoire de travail à la racine du monorepo
+WORKDIR /repo
+
+# Copier tout le monorepo
+COPY . .
+
+# Installation des dépendances de tout le workspace
+RUN pnpm install
+
+# Se placer dans le dossier frontend
+WORKDIR /repo/apps/front
+

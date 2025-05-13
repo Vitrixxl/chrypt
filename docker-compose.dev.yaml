@@ -1,0 +1,38 @@
+services:
+  db:
+    image: postgres
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    env_file:
+        - ./apps/back/.env
+  backend:
+    build:
+      context: .
+      dockerfile: ./apps/back/Dockerfile.dev
+    command: bun dev
+    env_file:
+      - ./apps/back/.env
+    volumes:
+      - ./apps/back/:/repo/apps/back
+    depends_on:
+      - db
+    ports:
+      - "3000:3000"
+  frontend:
+    build:
+      context: .
+      dockerfile: ./apps/front/Dockerfile.dev
+    command: pnpm run dev --host
+    volumes:
+      - ./apps/front/:/repo/apps/front
+    ports:
+      - "5173:5173" 
+    env_file:
+        - ./apps/front/.env
+    depends_on:
+      - backend
+
+volumes:
+  db-data:
