@@ -6,5 +6,5 @@ export const authClient = createAuthClient({
   plugins: [
     inferAdditionalFields<ServerAuth>(),
   ],
-  baseURL: 'http://localhost:3000',
+  baseURL: import.meta.env.VITE_BASE_API_URL!,
 });
