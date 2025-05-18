@@ -40,8 +40,10 @@ export function AppInput() {
         <Button
           size='icon'
           className='size-8'
-          disabled={!Boolean(chatId) || inputValue == '' ||
-            sendMutation.isPending}
+          disabled={Boolean(
+            chatId || inputValue == '' ||
+              sendMutation.isPending,
+          )}
           onClick={(e) => {
             e.preventDefault();
             handleSubmit();

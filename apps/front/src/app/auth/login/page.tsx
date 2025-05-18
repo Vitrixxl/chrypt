@@ -3,6 +3,7 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -12,7 +13,7 @@ import { afterAuthHandler } from '@/services/init-service';
 import { tryCatch } from '@shrymp/utils';
 import { LucideCheck, LucideLoaderCircle } from 'lucide-react';
 import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const config = {
   title: 'Login buddy',
@@ -44,7 +45,7 @@ export default function LoginPage() {
   };
   return (
     <div className='w-full h-svh grid place-content-center'>
-      <Card className='w-96'>
+      <Card className='w-96 gap-4'>
         <CardHeader>
           <CardTitle>{config.title}</CardTitle>
           <CardDescription>{config.description}</CardDescription>
@@ -81,6 +82,14 @@ export default function LoginPage() {
             <p className='text-destructive text-sm'>{errors.root.message}</p>
           )}
         </CardContent>
+        <CardFooter>
+          <p className='text-sm text-muted-foreground '>
+            You do not have an account yet ?{' '}
+            <Link to='/auth/register' className='text-primary'>
+              Sign up here.
+            </Link>
+          </p>
+        </CardFooter>
       </Card>
     </div>
   );

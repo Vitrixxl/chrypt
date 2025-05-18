@@ -72,8 +72,7 @@ export const createChat = async (
   const notifyUsers = async (users: User[], chatId: string) => {
     for (const u of users) {
       const userSocket = serverSocketMap.get(u.id);
-      console.log(userSocket);
-      if (!userSocket) continue;
+      if (!userSocket || u.id == user.id) continue;
       userSocket.send('new-chat', {
         users: users.filter((u) =>
           u.publicKey && u.keyVersion

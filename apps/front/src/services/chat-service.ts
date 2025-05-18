@@ -2,6 +2,7 @@ import { api } from '@/lib/api';
 import { $currentChatUsers, $privateKeys } from '@/stores/keys-store';
 import { $user } from '@/stores/user';
 import {
+  ActivatedUser,
   AESKey,
   DecryptedMessage,
   Message,
@@ -20,13 +21,11 @@ import { arrayBufferToBase64, base64ToUint8Array } from '@/lib/utils';
 import { $newMessages } from '@/stores/chat';
 
 export async function createChat(
-  { users, chatId }: { users: User[]; chatId: string },
+  { users, chatId }: { users: ActivatedUser[]; chatId: string },
 ) {
   const { error } = await api.post('/chats', {
     body: { userIds: users.map((u) => u.id), chatId },
   });
-
-  console.error(error);
 
   if (error) throw new Error(error.message);
 }
@@ -34,7 +33,7 @@ export async function createChat(
 export const getChats = async (cursor: number, offset: number) => {
   const { data, error } = await api.get<
     { chats: PopulatedChat[]; nextCursor: number | null }
-  >('/chats');
+  >(`/chats?cursor=${cursor}&offset=${offset}`);
 
   if (data) {
     return data;

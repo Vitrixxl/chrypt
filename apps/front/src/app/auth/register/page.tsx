@@ -3,6 +3,7 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -12,7 +13,7 @@ import { afterAuthHandler } from '@/services/init-service';
 import { tryCatch } from '@shrymp/utils';
 import { LucideCheck, LucideLoaderCircle } from 'lucide-react';
 import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const config = {
   title: 'Register buddy',
@@ -52,12 +53,12 @@ export default function RegisterPage() {
 
   return (
     <div className='w-full h-svh grid place-content-center'>
-      <Card className='w-96'>
+      <Card className='w-96 gap-4'>
         <CardHeader>
           <CardTitle>{config.title}</CardTitle>
           <CardDescription>{config.description}</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className='mb-0'>
           <form
             className='flex flex-col gap-2'
             onSubmit={handleSubmit(onSubmit)}
@@ -98,6 +99,12 @@ export default function RegisterPage() {
             <p className='text-xs text-destructive'>{errors.root.message}</p>
           )}
         </CardContent>
+        <CardFooter className='pt-0'>
+          <p className='text-sm text-muted-foreground'>
+            You already have an account ?{' '}
+            <Link to='/auth/login' className='text-primary'>Sign up here.</Link>
+          </p>
+        </CardFooter>
       </Card>
     </div>
   );

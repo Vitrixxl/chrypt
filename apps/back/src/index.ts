@@ -14,9 +14,7 @@ const app = new Elysia({ prefix: '/api' })
   .use(authController())
   .use(chatController())
   .use(userController())
-  .use(socketController());
-
-app.listen(3000);
+  .use(socketController()).listen(3000);
 
 console.log(
   `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port} test`,

@@ -17,3 +17,5 @@ RUN pnpm install
 # Se placer dans le dossier frontend
 WORKDIR /repo/apps/front
 
+RUN pnpm install
+

@@ -146,7 +146,6 @@ export const decryptAESKey = async (
   encryptedKey: Uint8Array,
   privateKey: Uint8Array,
 ): Promise<CryptoKey> => {
-  debugger;
   const rsaKey = await window.crypto.subtle.importKey(
     'pkcs8',
     privateKey,

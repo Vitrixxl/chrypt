@@ -20,3 +20,5 @@ RUN pnpm install
 
 WORKDIR /repo/apps/back
 
+run pnpm install
+

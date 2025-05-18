@@ -11,11 +11,9 @@ import { Input } from '@/components/ui/input';
 import { UserAvatar } from '@/components/user-avatar';
 import { useAutoFocus } from '@/hooks/use-autofocus';
 import { useDebounceState } from '@/hooks/use-debounce-state';
-import { queryClient } from '@/router';
-import { createChat } from '@/services/chat-service';
 import { searchUsers } from '@/services/user-service';
-import { ActivatedUser, PopulatedChat, User } from '@shrymp/types';
-import { useInfiniteQuery, useMutation } from '@tanstack/react-query';
+import { ActivatedUser, User } from '@shrymp/types';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import {
   LucideLoaderCircle,
   LucidePlus,
@@ -24,6 +22,7 @@ import {
 } from 'lucide-react';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useCreateChat } from '@/hooks/use-create-chat';
 
 export function StartChatDialog() {
   const [search, currentSearch, setSearch] = useDebounceState('', 300);
@@ -43,52 +42,18 @@ export function StartChatDialog() {
 
   useAutoFocus(inputRef);
 
-  const { mutate, error, isPending } = useMutation({
-    mutationKey: ['chats'],
-    mutationFn: createChat,
-    onMutate: async ({ chatId, users }) => {
-      await queryClient.cancelQueries({ queryKey: ['chats'] });
-      const prevData = queryClient.getQueryData<PopulatedChat[]>(['chats']);
-
-      queryClient.setQueryData<PopulatedChat[]>(['chats'], (old) =>
-        old
-          ? [
-            {
-              createdAt: new Date(),
-              updatedAt: new Date(),
-              id: chatId,
-              messages: [],
-              users: users as ActivatedUser[],
-            },
-            ...old,
-          ]
-          : [
-            {
-              createdAt: new Date(),
-              updatedAt: new Date(),
-              id: chatId,
-              messages: [],
-              users: users as ActivatedUser[],
-            },
-          ]);
-      return { prevData };
+  const { mutate, error, isPending } = useCreateChat(
+    {
+      onSuccess: (values) => {
+        setIsOpen(false);
+        setSelectedUsers([]);
+        navigate(`/chats/${values.chatId}`);
+      },
     },
-    onError: (_, __, prev) => {
-      if (!prev || !prev.prevData) return;
-      queryClient.setQueryData<PopulatedChat[]>(['chats'], prev.prevData);
-    },
-    onSuccess: (_, values) => {
-      setIsOpen(false);
-      setSelectedUsers([]);
-      navigate(`/chats/${values.chatId}`);
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['chats'] });
-    },
-  });
+  );
   const handleCreate = async () => {
     const id = uuid();
-    mutate({ chatId: id, users: selectedUsers });
+    mutate({ chatId: id, users: selectedUsers as ActivatedUser[] });
   };
 
   React.useEffect(() => {
@@ -167,8 +132,11 @@ export function StartChatDialog() {
                           variant='ghost'
                           size='lg'
                           onClick={() => {
-                            !selectedUsers.find((user) => user.id == u.id) &&
+                            if (
+                              !selectedUsers.find((user) => user.id == u.id)
+                            ) {
                               setSelectedUsers((s) => [...s, u]);
+                            }
                           }}
                         >
                           <UserAvatar user={u} />

@@ -10,7 +10,7 @@ import React from 'react';
 import { $user } from '@/stores/user';
 
 export default function CurrentChatPage() {
-  const { chatId } = useParams();
+  const { chatId } = useParams() as { chatId: string };
   const user = useAtomValue($user);
   const navigate = useNavigate();
   const setCurrentChatKeys = useSetAtom($currentChatKeys);
@@ -19,12 +19,8 @@ export default function CurrentChatPage() {
   const [currentChat, setCurrentChat] = React.useState<PopulatedChat | null>(
     null,
   );
-  if (!chatId) {
-    navigate('/chats');
-    return;
-  }
-
   const chatQuery = useChats();
+
   React.useEffect(() => {
     if (!chatId) navigate('/');
     if (!user) navigate('/auth/login');
@@ -38,7 +34,9 @@ export default function CurrentChatPage() {
       return;
     }
 
-    const currentChat = chatQuery.data.find((c) => c.id == chatId);
+    const currentChat = chatQuery.data.pages.flatMap((p) => p.chats).find((c) =>
+      c.id == chatId
+    );
 
     if (!currentChat) {
       navigate('/chats');
@@ -87,7 +85,6 @@ export default function CurrentChatPage() {
       </div>
     );
   }
-
   return (
     <div className='grid grid-rows-[auto_minmax(0,1fr)] h-full '>
       <header className='pl-12 flex gap-4'>

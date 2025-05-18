@@ -83,9 +83,29 @@ export default function AppLayout() {
         messages: [],
         users: data.users,
       };
-      queryClient.setQueryData<PopulatedChat[]>(
+      queryClient.setQueryData<
+        InfiniteData<{ chats: PopulatedChat[]; nextCursor: number }>
+      >(
         ['chats'],
-        (old) => old ? [chat, ...old] : [chat],
+        (old) => {
+          if (!old) return old;
+          const lastPageIndex = old.pages.length - 1;
+          const lastPage = old.pages[lastPageIndex];
+
+          const updatedLastPage = {
+            ...lastPage,
+            chats: [...lastPage.chats, chat],
+          };
+
+          const updatedPages = old.pages.map((page, index) =>
+            index === lastPageIndex ? updatedLastPage : page
+          );
+
+          return {
+            ...old,
+            pages: updatedPages,
+          };
+        },
       );
     });
 

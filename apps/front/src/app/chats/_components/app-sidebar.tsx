@@ -10,12 +10,10 @@ import {
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { UserAvatar } from '@/components/user-avatar';
-import { useChats } from '@/hooks/use-chats';
 import { LucideShrimp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { StartChatDialog } from './start-chat-dialog';
 import { User } from '@shrymp/types';
-import { ChatButton } from './chat-button';
 import { SidebarChats } from './sidebar-chats';
 
 type AppSidebarProps = {
@@ -23,8 +21,6 @@ type AppSidebarProps = {
 };
 
 export function AppSidebar({ user }: AppSidebarProps) {
-  const { data, error } = useChats();
-
   return (
     <Sidebar variant='inset'>
       <SidebarHeader>
@@ -49,7 +45,6 @@ export function AppSidebar({ user }: AppSidebarProps) {
       <SidebarContent className='flex-1 grid grid-rows-[minmax(0,1fr)_auto]'>
         <SidebarGroup className='h-full overflow-auto grid-rows-[auto_minmax(0,1fr)]'>
           <SidebarGroupLabel>Chats</SidebarGroupLabel>
-          {error && error.message}
           <SidebarChats user={user} />
         </SidebarGroup>
         <SidebarGroup className='mt-auto'>

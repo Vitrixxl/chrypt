@@ -1,5 +1,4 @@
 import { getMessages } from '@/services/chat-service';
-import { tryCatch } from '@shrymp/utils';
 import { useInfiniteQuery } from '@tanstack/react-query';
 
 export const useInfiniteMessage = (chatId: string) => {
